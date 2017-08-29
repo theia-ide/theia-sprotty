@@ -1,0 +1,42 @@
+{
+  "name": "theia-sprotty",
+  "version": "0.0.1",
+  "description": "Glue code for sprotty diagrams in a Theia IDE",
+  "author": "typefox.io",
+  "license": "Apache-2.0",
+  "keywords": [
+    "theia", "sprotty", "diagram"
+  ],
+  "dependencies": {
+    "@theia/core": "0.1.1",
+    "@theia/monaco": "0.1.1",
+    "@theia/languages": "0.1.1",
+    "@theia/filesystem": "0.1.1",
+    "@theia/editor": "0.1.1",
+    "@types/node": "^8.0.14",
+    "sprotty": "0.1.2"
+  },
+  "scripts": {
+    "preinstall": "rm -rf ./build && mkdir build && cp -r ../../yang-lsp/yang-lsp/io.typefox.yang.diagram/build/install/yang-language-server ./build || echo 'Could not copy yang-lsp, make sure it sits next to the yangster repo, and that you executed `./gradlew installDist`.'",
+    "clean": "rimraf lib && rimraf node_modules",
+    "lint": "tslint -c ../tslint.json --project ./tsconfig.json",
+    "build": "tsc && yarn run lint",
+    "watch": "tsc -w",
+    "test": "mocha --opts ./mocha.opts"
+  },
+  "devDependencies": {
+    "rimraf": "^2.6.1",
+    "ts-node": "^3.2.0",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.1"
+  },
+  "files": [
+    "lib",
+    "src",
+    "css",
+    "build"
+  ],
+  "theiaExtensions": [{
+    "frontend": "lib/theia/diagram-module"
+  }]
+}
