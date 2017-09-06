@@ -17,8 +17,8 @@ import { DiagramWidget } from './diagram-widget'
 import { DiagramManagerImpl } from './diagram-manager'
 import { injectable, inject } from 'inversify'
 import { MAIN_MENU_BAR, MenuContribution, MenuModelRegistry, CommandContribution,
-         CommandHandler, CommandRegistry, CommonCommands } from '@theia/core/lib/common'
-import { ApplicationShell, FrontendApplication, OpenerService } from '@theia/core/lib/browser'
+         CommandHandler, CommandRegistry } from '@theia/core/lib/common'
+import { ApplicationShell, FrontendApplication, OpenerService, CommonCommands } from '@theia/core/lib/browser'
 import { EDITOR_CONTEXT_MENU_ID, EditorManager } from "@theia/editor/lib/browser"
 
 export namespace DiagramCommands {
@@ -151,13 +151,13 @@ export class DiagramCommandContribution implements CommandContribution {
             new OpenInDiagramHandler(this.editorManager, this.openerService)
         )
         registry.registerHandler(
-            CommonCommands.EDIT_UNDO,
+            CommonCommands.UNDO.id,
             new DiagramCommandHandler(this.application.shell, widget =>
                 widget.diagramServer.actionDispatcher.dispatch(new UndoAction())
             )
         )
         registry.registerHandler(
-            CommonCommands.EDIT_REDO,
+            CommonCommands.REDO.id,
             new DiagramCommandHandler(this.application.shell, widget =>
                 widget.diagramServer.actionDispatcher.dispatch(new RedoAction())
             )

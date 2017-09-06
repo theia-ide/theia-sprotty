@@ -8,8 +8,9 @@
 import { DiagramCommands } from './diagram-commands'
 import { DiagramWidget } from './diagram-widget'
 import { injectable, inject } from 'inversify'
-import { CommonCommands, Key, KeybindingRegistry, KeybindingContribution, KeybindingContext, Keybinding, KeyCode, Modifier } from '@theia/core/lib/common'
+import { Key, KeybindingRegistry, KeybindingContribution, KeybindingContext, Keybinding, KeyCode, Modifier } from '@theia/core/lib/common'
 import { FrontendApplication } from '@theia/core/lib/browser/frontend-application'
+import { CommonCommands } from '@theia/core/lib/browser'
 
 @injectable()
 export class DiagramKeybindingContext implements KeybindingContext {
@@ -52,12 +53,12 @@ export class DiagramKeybindingContribution implements KeybindingContribution {
                 keyCode: KeyCode.createKeyCode({ first: Key.KEY_A, modifiers: [Modifier.M1] })
             },
             {
-                commandId: CommonCommands.EDIT_UNDO,
+                commandId: CommonCommands.UNDO.id,
                 context: this.diagramKeybindingContext,
                 keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1] })
             },
             {
-                commandId: CommonCommands.EDIT_REDO,
+                commandId: CommonCommands.REDO.id,
                 context: this.diagramKeybindingContext,
                 keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1, Modifier.M2] })
             }
