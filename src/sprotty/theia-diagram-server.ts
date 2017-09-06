@@ -61,8 +61,9 @@ export class TheiaDiagramServer extends DiagramServer {
         return super.handle(action)
     }
 
-    handleExportSvgAction(action: ExportSvgAction): void {
+    handleExportSvgAction(action: ExportSvgAction): boolean {
         this.connector.then(c => c.save(this.sourceUri, action))
+        return true
     }
 
     sendMessage(message: ActionMessage) {
