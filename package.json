@@ -5,7 +5,7 @@
   "author": "typefox.io",
   "license": "Apache-2.0",
   "keywords": [
-    "theia", "sprotty", "diagram"
+    "theia", "sprotty", "diagram", "theia-extension"
   ],
   "dependencies": {
     "@theia/core": "0.1.1",
