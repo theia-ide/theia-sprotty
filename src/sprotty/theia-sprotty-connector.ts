@@ -1,17 +1,18 @@
 /*
- * Copyright (C) 2017 TypeFox and others.
- *
- * Licensed under the Apache License, Version 2.0 (the "License") you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- */
+* Copyright (C) 2017 TypeFox and others.
+*
+* Licensed under the Apache License, Version 2.0 (the "License") you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+*/
 
-import { ActionMessage, ExportSvgAction } from 'sprotty/lib'
+import { ActionMessage, ExportSvgAction, ServerStatusAction } from 'sprotty/lib'
 import { TheiaDiagramServer } from './theia-diagram-server'
 import { NotificationType } from 'vscode-jsonrpc/lib/messages'
 import { Location } from 'vscode-languageserver-types/lib/main'
 import { LanguageClientContribution } from '@theia/languages/lib/browser'
 import { EditorManager } from '@theia/editor/lib/browser'
 import { TheiaFileSaver } from './theia-file-saver'
+import { DiagramWidgetRegistry } from '../theia/diagram-widget-registry'
 import URI from "@theia/core/lib/common/uri"
 
 export interface OpenInTextEditorMessage {
@@ -39,7 +40,8 @@ export class TheiaSprottyConnector {
 
     constructor(private languageClientContribution: LanguageClientContribution,
                 private fileSaver: TheiaFileSaver,
-                private editorManager: EditorManager) {
+                private editorManager: EditorManager,
+                private diagramWidgetRegistry: DiagramWidgetRegistry) {
         this.languageClientContribution.languageClient.then(
             lc => {
                 lc.onNotification(acceptMessageType, this.receivedThroughLsp.bind(this))
@@ -87,6 +89,12 @@ export class TheiaSprottyConnector {
                     editor.selection = message.location.range
                 })
         }
+    }
+
+    showStatus(widgetId: string, status: ServerStatusAction): void {
+        const widget = this.diagramWidgetRegistry.getWidgetById(widgetId)
+        if (widget)
+            widget.setStatus(status)
     }
 
     sendThroughLsp(message: ActionMessage) {

@@ -9,11 +9,13 @@ import { injectable } from "inversify"
 import URI from "@theia/core/lib/common/uri"
 import { Emitter, Event, MaybePromise } from "@theia/core/lib/common"
 import { Widget } from "@phosphor/widgets"
+import { DiagramWidget } from './diagram-widget'
 
 @injectable()
 export class DiagramWidgetRegistry {
     protected idSequence = 0
-    protected readonly widgets = new Map<string, MaybePromise<Widget>>()
+    protected readonly widgets = new Map<string, MaybePromise<DiagramWidget>>()
+    protected readonly widgetsById = new Map<string, DiagramWidget>()
     protected readonly onWidgetsChangedEmitter = new Emitter<void>()
 
     onWidgetsChanged(): Event<void> {
@@ -28,7 +30,7 @@ export class DiagramWidgetRegistry {
         return Array.from(this.widgets.values()).filter(widget => widget instanceof Widget) as Widget[]
     }
 
-    getWidget(uri: URI, diagramType: string): Promise<Widget> | undefined {
+    getWidget(uri: URI, diagramType: string): Promise<DiagramWidget> | undefined {
         const widget = this.widgets.get(this.getKey(uri, diagramType))
         if (widget) {
             return Promise.resolve(widget)
@@ -36,10 +38,13 @@ export class DiagramWidgetRegistry {
         return undefined
     }
 
-    addWidget(uri: URI, diagramType: string, widget: Widget): void {
-        if (widget.id === undefined)
-            widget.id = this.nextId()
+    getWidgetById(widgetId: string): DiagramWidget | undefined {
+        return this.widgetsById.get(widgetId)
+    }
+
+    addWidget(uri: URI, diagramType: string, widget: DiagramWidget): void {
         this.widgets.set(this.getKey(uri, diagramType), widget)
+        this.widgetsById.set(widget.id, widget)
         this.onWidgetsChangedEmitter.fire(undefined)
     }
 
