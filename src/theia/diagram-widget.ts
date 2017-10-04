@@ -115,7 +115,7 @@ export class DiagramWidget extends Widget {
 
     protected removeClasses(element: Element, keep: number) {
         const classes = element.classList
-        while(classes.length > keep)
+        while (classes.length > keep)
             classes.remove(classes.item(classes.length - 1))
     }
 }
