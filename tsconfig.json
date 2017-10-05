@@ -17,16 +17,13 @@
       "dom"
     ],
     "typeRoots": [
-      "../node_modules/@types", "./typings"
+      "../node_modules/@types"
     ],
     "jsx": "react",
     "sourceMap": true,
     "reactNamespace": "JSX"
   },
   "include": [
-    "src", "./typings"
-  ],
-  "files": [
-    "../node_modules/@types/node/index.d.ts"
+    "src"
   ]
 }
