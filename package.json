@@ -2,7 +2,7 @@
   "name": "theia-sprotty",
   "version": "0.0.1",
   "description": "Glue code for sprotty diagrams in a Theia IDE",
-  "author": "typefox.io",
+  "author": "Project Theia",
   "license": "Apache-2.0",
   "keywords": [
     "theia", "sprotty", "diagram", "theia-extension"
@@ -17,9 +17,9 @@
     "sprotty": "0.1.2"
   },
   "scripts": {
-    "clean": "rimraf lib && rimraf node_modules",
-    "lint": "tslint -c ../tslint.json --project ./tsconfig.json",
-    "build": "tsc && yarn run lint",
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
     "watch": "tsc -w",
     "test": "mocha --opts ./mocha.opts"
   },
@@ -27,7 +27,7 @@
     "rimraf": "^2.6.1",
     "ts-node": "^3.2.0",
     "tslint": "^5.5.0",
-    "typescript": "^2.4.1"
+    "typescript": "^2.5.2"
   },
   "files": [
     "lib",
