@@ -19,7 +19,8 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "tsc",
+    "lint": "tslint -c ../tslint.json --project ./tsconfig.json",
+    "build": "tsc && yarn lint",
     "watch": "tsc -w",
     "test": "mocha --opts ./mocha.opts"
   },
