@@ -11,7 +11,7 @@ import {
     RequestExportSvgAction,
     UndoAction,
     RedoAction,
-    SelectAction
+    SelectAllAction
 } from 'sprotty/lib'
 import { DiagramWidget } from './diagram-widget'
 import { DiagramManagerImpl } from './diagram-manager'
@@ -141,8 +141,7 @@ export class DiagramCommandContribution implements CommandContribution {
         registry.registerHandler(
             DiagramCommands.SELECT_ALL,
             new DiagramCommandHandler(this.application.shell, widget => {
-                const action = new SelectAction([], [])
-                action.selectAll = true
+                const action = new SelectAllAction(true)
                 widget.diagramServer.actionDispatcher.dispatch(action)
             })
         )
