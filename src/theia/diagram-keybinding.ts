@@ -35,32 +35,38 @@ export class DiagramKeybindingContribution implements KeybindingContribution {
             {
                 commandId: DiagramCommands.CENTER,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_C, modifiers: [Modifier.M1] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_C, modifiers: [Modifier.M3] }),
+                accelerator: ['Alt C']
             },
             {
                 commandId: DiagramCommands.FIT,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_F, modifiers: [Modifier.M1] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_F, modifiers: [Modifier.M3] }),
+                accelerator: ['Alt F']
             },
             {
                 commandId: DiagramCommands.EXPORT,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_E, modifiers: [Modifier.M1] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_E, modifiers: [Modifier.M3] }),
+                accelerator: ['Alt E']
             },
             {
                 commandId: DiagramCommands.SELECT_ALL,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_A, modifiers: [Modifier.M1] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_A, modifiers: [Modifier.M1] }),
+                accelerator: ['Ctrl A']
             },
             {
                 commandId: CommonCommands.UNDO.id,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1] }),
+                accelerator: ['Ctrl Z']
             },
             {
                 commandId: CommonCommands.REDO.id,
                 context: this.diagramKeybindingContext,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1, Modifier.M2] })
+                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1, Modifier.M2] }),
+                accelerator: ['Ctrl Shift Z']
             }
         ].forEach(binding => {
             registry.registerKeyBinding(binding)
