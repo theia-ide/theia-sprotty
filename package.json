@@ -5,16 +5,19 @@
   "author": "Project Theia",
   "license": "Apache-2.0",
   "keywords": [
-    "theia", "sprotty", "diagram", "theia-extension"
+    "theia",
+    "sprotty",
+    "diagram",
+    "theia-extension"
   ],
   "dependencies": {
     "@theia/core": "next",
-    "@theia/monaco": "next",
-    "@theia/languages": "next",
-    "@theia/filesystem": "next",
     "@theia/editor": "next",
+    "@theia/filesystem": "next",
+    "@theia/languages": "next",
+    "@theia/monaco": "next",
     "@types/node": "^8.0.14",
-    "sprotty": "0.3.0"
+    "sprotty": "0.2.0"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
@@ -36,7 +39,9 @@
     "css",
     "build"
   ],
-  "theiaExtensions": [{
-    "frontend": "lib/theia/diagram-module"
-  }]
+  "theiaExtensions": [
+    {
+      "frontend": "lib/theia/diagram-module"
+    }
+  ]
 }
