@@ -8,15 +8,23 @@
 import { inject, injectable } from 'inversify'
 import { ExportSvgAction } from 'sprotty/lib'
 import { FileSystem } from '@theia/filesystem/lib/common'
+import { MessageService } from '@theia/core/lib/common'
 
 @injectable()
 export class TheiaFileSaver {
-    constructor(@inject(FileSystem) protected readonly fileSystem: FileSystem) {
+    constructor(@inject(FileSystem) protected readonly fileSystem: FileSystem,
+                @inject(MessageService) protected readonly messageService: MessageService) {
     }
 
     save(sourceUri: string, action: ExportSvgAction) {
         this.getNextFileName(sourceUri).then(fileName =>
             this.fileSystem.createFile(fileName, { content: action.svg })
+                .then(() => {
+                    this.messageService.info(`Diagram exported to '${fileName}'`)
+                })
+                .catch((error) => 
+                    this.messageService.error(`Error exporting diagram '${error}`)
+                )
         )
     }
 
