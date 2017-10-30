@@ -19,10 +19,10 @@ export class TheiaFileSaver {
     save(sourceUri: string, action: ExportSvgAction) {
         this.getNextFileName(sourceUri).then(fileName =>
             this.fileSystem.createFile(fileName, { content: action.svg })
-                .then(() => {
+                .then(() =>
                     this.messageService.info(`Diagram exported to '${fileName}'`)
-                })
-                .catch((error) => 
+                )
+                .catch((error) =>
                     this.messageService.error(`Error exporting diagram '${error}`)
                 )
         )
