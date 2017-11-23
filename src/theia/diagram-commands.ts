@@ -17,9 +17,9 @@ import { DiagramWidget } from './diagram-widget'
 import { DiagramManagerImpl } from './diagram-manager'
 import { injectable, inject } from 'inversify'
 import { MAIN_MENU_BAR, MenuContribution, MenuModelRegistry, CommandContribution,
-         CommandHandler, CommandRegistry } from '@theia/core/lib/common'
+         CommandHandler, CommandRegistry, MenuPath } from '@theia/core/lib/common'
 import { ApplicationShell, FrontendApplication, OpenerService, CommonCommands } from '@theia/core/lib/browser'
-import { EDITOR_CONTEXT_MENU_ID, EditorManager } from "@theia/editor/lib/browser"
+import { EDITOR_CONTEXT_MENU, EditorManager } from "@theia/editor/lib/browser"
 
 export namespace DiagramCommands {
     export const CENTER = 'diagram:center'
@@ -30,14 +30,14 @@ export namespace DiagramCommands {
 }
 
 export namespace DiagramMenus {
-    export const DIAGRAM = [MAIN_MENU_BAR, "3_diagram"]
+    export const DIAGRAM: MenuPath = MAIN_MENU_BAR.concat("3_diagram")
 }
 
 @injectable()
 export class DiagramMenuContribution implements MenuContribution {
 
     registerMenus(registry: MenuModelRegistry) {
-        registry.registerSubmenu([MAIN_MENU_BAR], DiagramMenus.DIAGRAM[1], "Diagram")
+        registry.registerSubmenu(DiagramMenus.DIAGRAM, "Diagram")
 
         registry.registerMenuAction(DiagramMenus.DIAGRAM, {
             commandId: DiagramCommands.CENTER
@@ -48,7 +48,7 @@ export class DiagramMenuContribution implements MenuContribution {
         registry.registerMenuAction(DiagramMenus.DIAGRAM, {
             commandId: DiagramCommands.EXPORT
         })
-        registry.registerMenuAction([EDITOR_CONTEXT_MENU_ID], {
+        registry.registerMenuAction(EDITOR_CONTEXT_MENU, {
             commandId: DiagramCommands.OPEN_IN_DIAGRAM
         })
     }
