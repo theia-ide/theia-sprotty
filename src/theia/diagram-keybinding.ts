@@ -30,7 +30,7 @@ export class DiagramKeybindingContribution implements KeybindingContribution {
 
     constructor(@inject(DiagramKeybindingContext) protected readonly diagramKeybindingContext: DiagramKeybindingContext) { }
 
-    registerKeyBindings(registry: KeybindingRegistry): void {
+    registerKeybindings(registry: KeybindingRegistry): void {
         [
             {
                 commandId: DiagramCommands.CENTER,
@@ -69,7 +69,7 @@ export class DiagramKeybindingContribution implements KeybindingContribution {
                 accelerator: ['Ctrl Shift Z']
             }
         ].forEach(binding => {
-            registry.registerKeyBinding(binding)
+            registry.registerKeybinding(binding)
         })
     }
 }
