@@ -1,6 +1,6 @@
 {
   "name": "theia-sprotty",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Glue code for sprotty diagrams in a Theia IDE",
   "author": "Project Theia",
   "license": "Apache-2.0",
