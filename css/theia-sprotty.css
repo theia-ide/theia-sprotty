@@ -25,12 +25,6 @@ svg {
     border-color: #bbb;
 }
 
-.p-TabBar-tabIcon {
-    display: flex!important;
-    justify-content: center;
-    align-items: center; 
-}
-
 .sprotty-status {
     position: absolute;
     top: 5px;
