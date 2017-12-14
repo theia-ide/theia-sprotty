@@ -35,7 +35,6 @@ export abstract class DiagramManagerImpl implements DiagramManager {
     protected readonly onDiagramOpenedEmitter = new Emitter<URI>()
 
     abstract get diagramType(): string
-    abstract get diagramConnector(): TheiaSprottyConnector
     abstract iconClass: string
 
     get id() {
@@ -78,27 +77,33 @@ export abstract class DiagramManagerImpl implements DiagramManager {
                 return widget as Promise<DiagramWidget>
             const widgetId = this.widgetRegistry.nextId()
             const svgContainerId = widgetId + '_sprotty'
-            const newServer = this.createDiagramServer(widgetId, svgContainerId)
-            const newWidget = new DiagramWidget(widgetId, svgContainerId, uri, this.diagramType, newServer)
+            const modelSource = this.createModelSource(widgetId, svgContainerId)
+            const newWidget = new DiagramWidget(widgetId, svgContainerId, uri, this.diagramType, modelSource)
             newWidget.title.closable = true
             newWidget.title.label = uri.path.base
             newWidget.title.icon = this.iconClass
             this.widgetRegistry.addWidget(uri, this.diagramType, newWidget)
             newWidget.disposed.connect(() => {
                 this.widgetRegistry.removeWidget(uri, this.diagramType)
-                this.diagramConnector.disconnect(newServer)
+                if (this.diagramConnector)
+                    this.diagramConnector.disconnect(modelSource)
             })
             app.shell.addToMainArea(newWidget)
             return newWidget
         })
     }
 
-    protected createDiagramServer(widgetId: string, svgContainerId: string): TheiaDiagramServer {
+    protected createModelSource(widgetId: string, svgContainerId: string): TheiaDiagramServer {
         const diagramConfiguration = this.diagramConfigurationRegistry.get(this.diagramType)
         const newServer = diagramConfiguration.createContainer(svgContainerId).get<TheiaDiagramServer>(TYPES.ModelSource)
         newServer.clientId = widgetId
-        this.diagramConnector.connect(newServer)
+        if (this.diagramConnector)
+            this.diagramConnector.connect(newServer)
         return newServer
+    }
+
+    get diagramConnector(): TheiaSprottyConnector | undefined {
+        return undefined
     }
 }
 

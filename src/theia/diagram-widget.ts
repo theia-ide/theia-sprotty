@@ -5,8 +5,7 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { TheiaDiagramServer } from '../sprotty/theia-diagram-server'
-import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ServerStatusAction } from 'sprotty/lib'
+import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction } from 'sprotty/lib'
 import { Widget } from "@phosphor/widgets"
 import { Message } from "@phosphor/messaging/lib"
 import URI from "@theia/core/lib/common/uri"
@@ -22,7 +21,7 @@ export class DiagramWidget extends Widget {
                 public readonly svgContainerId: string,
                 public readonly uri: URI,
                 public readonly diagramType: string,
-                public readonly diagramServer: TheiaDiagramServer) {
+                public readonly modelSource: ModelSource) {
         super()
     }
 
@@ -45,7 +44,7 @@ export class DiagramWidget extends Widget {
         this.statusMessageDiv.setAttribute('class', 'sprotty-status-message')
         statusDiv.appendChild(this.statusMessageDiv)
 
-        this.diagramServer.handle(new RequestModelAction({
+        this.modelSource.handle(new RequestModelAction({
             sourceUri: this.uri.toString(),
             diagramType: this.diagramType
         }))
@@ -68,8 +67,8 @@ export class DiagramWidget extends Widget {
     protected onResize(msg: Widget.ResizeMessage): void {
         super.onResize(msg)
         const newBounds = this.getBoundsInPage(this.node as Element)
-        this.diagramServer.actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
-        this.diagramServer.actionDispatcher.dispatch(new CenterAction([], false))
+        this.modelSource.actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
+        this.modelSource.actionDispatcher.dispatch(new CenterAction([], false))
     }
 
     protected onActivateRequest(msg: Message): void {
