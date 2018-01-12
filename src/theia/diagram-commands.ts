@@ -18,7 +18,7 @@ import { DiagramManagerImpl } from './diagram-manager'
 import { injectable, inject } from 'inversify'
 import { MAIN_MENU_BAR, MenuContribution, MenuModelRegistry, CommandContribution,
          CommandHandler, CommandRegistry, MenuPath } from '@theia/core/lib/common'
-import { ApplicationShell, FrontendApplication, OpenerService, CommonCommands } from '@theia/core/lib/browser'
+import { ApplicationShell, FrontendApplication, OpenerService, CommonCommands, OpenHandler } from '@theia/core/lib/browser'
 import { EDITOR_CONTEXT_MENU, EditorManager } from "@theia/editor/lib/browser"
 
 export namespace DiagramCommands {
@@ -78,16 +78,26 @@ export class OpenInDiagramHandler implements CommandHandler {
     }
 
     execute(...args: any[]) {
+        this.getDiagramOpener(true)
+    }
+
+    protected getDiagramOpener(doOpen: boolean): OpenHandler | undefined {
         const editor = this.editorManager.currentEditor
         if (editor !== undefined) {
             const uri = editor.editor.uri
             const openers = this.openerService.getOpeners(uri)
             openers.then(openers => {
                 const opener = openers.find(opener => opener instanceof DiagramManagerImpl)
-                if (opener !== undefined)
+                if (opener !== undefined && doOpen)
                     opener.open(uri)
+                return opener
             })
         }
+        return undefined
+    }
+
+    isVisible(): boolean {
+        return this.getDiagramOpener(false) !== undefined
     }
 }
 
