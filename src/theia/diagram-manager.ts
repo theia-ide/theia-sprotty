@@ -9,12 +9,13 @@ import { TheiaDiagramServer } from '../sprotty/theia-diagram-server'
 import { TheiaSprottyConnector } from '../sprotty/theia-sprotty-connector'
 import { DiagramConfigurationRegistry } from './diagram-configuration'
 import { injectable, inject } from "inversify"
-import { OpenerOptions, OpenHandler, FrontendApplication, FrontendApplicationContribution } from "@theia/core/lib/browser"
+import { OpenerOptions, OpenHandler, FrontendApplication, FrontendApplicationContribution, ApplicationShell } from "@theia/core/lib/browser"
 import URI from "@theia/core/lib/common/uri"
 import { DiagramWidget } from "./diagram-widget"
 import { DiagramWidgetRegistry } from "./diagram-widget-registry"
 import { Emitter, Event, SelectionService } from '@theia/core/lib/common'
 import { TYPES } from 'sprotty/lib'
+import { EditorManager } from '@theia/editor/lib/browser';
 
 export const DiagramManagerProvider = Symbol('DiagramManagerProvider')
 
@@ -31,6 +32,7 @@ export abstract class DiagramManagerImpl implements DiagramManager {
     @inject(DiagramWidgetRegistry) protected readonly widgetRegistry: DiagramWidgetRegistry
     @inject(SelectionService) protected readonly selectionService: SelectionService
     @inject(DiagramConfigurationRegistry) protected diagramConfigurationRegistry: DiagramConfigurationRegistry
+    @inject(EditorManager) protected editorManager: EditorManager
 
     protected readonly onDiagramOpenedEmitter = new Emitter<URI>()
 
@@ -63,7 +65,7 @@ export abstract class DiagramManagerImpl implements DiagramManager {
         const promiseDiagramWidget = this.getOrCreateDiagramWidget(uri)
         promiseDiagramWidget.then((diagramWidget) => {
             this.resolveApp.then(app => {
-                app.shell.activateMain(diagramWidget.id)
+                app.shell.activateWidget(diagramWidget.id)
                 this.onDiagramOpenedEmitter.fire(uri)
             })
         })
@@ -88,7 +90,15 @@ export abstract class DiagramManagerImpl implements DiagramManager {
                 if (this.diagramConnector)
                     this.diagramConnector.disconnect(modelSource)
             })
-            app.shell.addToMainArea(newWidget)
+            const currentEditor = this.editorManager.currentEditor
+            const options: ApplicationShell.WidgetOptions = {
+                area: 'main'
+            }
+            if (!!currentEditor && currentEditor.editor.uri.toString === uri.toString) {
+                options.ref = currentEditor
+                options.mode = 'split-right'
+            }
+            app.shell.addWidget(newWidget, options)
             return newWidget
         })
     }

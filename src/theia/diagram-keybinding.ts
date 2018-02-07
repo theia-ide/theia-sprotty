@@ -8,7 +8,7 @@
 import { DiagramCommands } from './diagram-commands'
 import { DiagramWidget } from './diagram-widget'
 import { injectable, inject } from 'inversify'
-import { Key, KeybindingRegistry, KeybindingContribution, KeybindingContext, Keybinding, KeyCode, Modifier } from '@theia/core/lib/common'
+import { KeybindingRegistry, KeybindingContribution, KeybindingContext, Keybinding } from '@theia/core/lib/common'
 import { FrontendApplication } from '@theia/core/lib/browser/frontend-application'
 import { CommonCommands } from '@theia/core/lib/browser'
 
@@ -33,40 +33,34 @@ export class DiagramKeybindingContribution implements KeybindingContribution {
     registerKeybindings(registry: KeybindingRegistry): void {
         [
             {
-                commandId: DiagramCommands.CENTER,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_C, modifiers: [Modifier.M3] }),
-                accelerator: ['Alt C']
+                command: DiagramCommands.CENTER,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'alt+c'
             },
             {
-                commandId: DiagramCommands.FIT,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_F, modifiers: [Modifier.M3] }),
-                accelerator: ['Alt F']
+                command: DiagramCommands.FIT,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'alt+f'
             },
             {
-                commandId: DiagramCommands.EXPORT,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_E, modifiers: [Modifier.M3] }),
-                accelerator: ['Alt E']
+                command: DiagramCommands.EXPORT,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'alt+e'
             },
             {
-                commandId: DiagramCommands.SELECT_ALL,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_A, modifiers: [Modifier.M1] }),
-                accelerator: ['Ctrl A']
+                command: DiagramCommands.SELECT_ALL,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'ctrlcmd+a'
             },
             {
-                commandId: CommonCommands.UNDO.id,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1] }),
-                accelerator: ['Ctrl Z']
+                command: CommonCommands.UNDO.id,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'ctrlcmd+z'
             },
             {
-                commandId: CommonCommands.REDO.id,
-                contextId: this.diagramKeybindingContext.id,
-                keyCode: KeyCode.createKeyCode({ first: Key.KEY_Z, modifiers: [Modifier.M1, Modifier.M2] }),
-                accelerator: ['Ctrl Shift Z']
+                command: CommonCommands.REDO.id,
+                context: this.diagramKeybindingContext.id,
+                keybinding: 'ctrlcmd+shift+z'
             }
         ].forEach(binding => {
             registry.registerKeybinding(binding)
