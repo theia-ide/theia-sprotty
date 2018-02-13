@@ -72,7 +72,7 @@ export class TheiaSprottyConnector {
     openInTextEditor(message: OpenInTextEditorMessage) {
         const uri = new URI(message.location.uri)
         if (!message.forceOpen) {
-            this.editorManager.editors.forEach(editorWidget => {
+            this.editorManager.all.forEach(editorWidget => {
                 const currentTextEditor = editorWidget.editor
                 if (editorWidget.isVisible && uri.toString() === currentTextEditor.uri.toString()) {
                     currentTextEditor.cursor = message.location.range.start

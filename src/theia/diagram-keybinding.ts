@@ -8,9 +8,8 @@
 import { DiagramCommands } from './diagram-commands'
 import { DiagramWidget } from './diagram-widget'
 import { injectable, inject } from 'inversify'
-import { KeybindingRegistry, KeybindingContribution, KeybindingContext, Keybinding } from '@theia/core/lib/common'
 import { FrontendApplication } from '@theia/core/lib/browser/frontend-application'
-import { CommonCommands } from '@theia/core/lib/browser'
+import { CommonCommands, KeybindingContext, Keybinding, KeybindingContribution, KeybindingRegistry } from '@theia/core/lib/browser'
 
 @injectable()
 export class DiagramKeybindingContext implements KeybindingContext {
