@@ -12,8 +12,6 @@ import URI from "@theia/core/lib/common/uri"
 
 export class DiagramWidget extends Widget {
 
-    private svgId: string
-
     private statusIconDiv: HTMLDivElement;
     private statusMessageDiv: HTMLDivElement;
 
@@ -29,7 +27,6 @@ export class DiagramWidget extends Widget {
     protected onAfterAttach(msg: Message): void {
         super.onAfterAttach(msg)
         const svgContainer = document.createElement("div")
-        this.svgId = this.svgContainerId + "_" + this.diagramType
         svgContainer.id = this.svgContainerId
         this.node.appendChild(svgContainer)
 
@@ -74,7 +71,7 @@ export class DiagramWidget extends Widget {
 
     protected onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg)
-        const svgElement = document.getElementById(this.svgId)
+        const svgElement = this.node.querySelector(`#${this.svgContainerId} svg`) as HTMLElement
         if (svgElement !== null)
             svgElement.focus()
     }

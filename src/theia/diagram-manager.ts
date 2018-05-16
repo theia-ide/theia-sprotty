@@ -54,9 +54,11 @@ export abstract class DiagramManagerImpl implements DiagramManager {
 
     open(uri: URI, input?: OpenerOptions): Promise<DiagramWidget> {
         const promiseDiagramWidget = this.getOrCreateDiagramWidget(uri)
-        promiseDiagramWidget.then((diagramWidget) => {
-            this.shell.activateWidget(diagramWidget.id)
-            this.onDiagramOpenedEmitter.fire(uri)
+        promiseDiagramWidget.then(diagramWidget => {
+            window.requestAnimationFrame(() => {
+                this.shell.activateWidget(diagramWidget.id)
+                this.onDiagramOpenedEmitter.fire(uri)
+            })
         })
         return promiseDiagramWidget
     }
