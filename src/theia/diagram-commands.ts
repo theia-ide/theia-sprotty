@@ -123,26 +123,26 @@ export class DiagramCommandContribution implements CommandContribution {
         registry.registerHandler(
             DiagramCommands.CENTER,
             new DiagramCommandHandler(this.application.shell, widget =>
-                widget.modelSource.actionDispatcher.dispatch(new CenterAction([]))
+                widget.actionDispatcher.dispatch(new CenterAction([]))
             )
         )
         registry.registerHandler(
             DiagramCommands.FIT,
             new DiagramCommandHandler(this.application.shell, widget =>
-                widget.modelSource.actionDispatcher.dispatch(new FitToScreenAction([]))
+                widget.actionDispatcher.dispatch(new FitToScreenAction([]))
             )
         )
         registry.registerHandler(
             DiagramCommands.EXPORT,
             new DiagramCommandHandler(this.application.shell, widget =>
-                widget.modelSource.actionDispatcher.dispatch(new RequestExportSvgAction())
+                widget.actionDispatcher.dispatch(new RequestExportSvgAction())
             )
         )
         registry.registerHandler(
             DiagramCommands.SELECT_ALL,
             new DiagramCommandHandler(this.application.shell, widget => {
                 const action = new SelectAllAction(true)
-                widget.modelSource.actionDispatcher.dispatch(action)
+                widget.actionDispatcher.dispatch(action)
             })
         )
         registry.registerHandler(
@@ -152,13 +152,13 @@ export class DiagramCommandContribution implements CommandContribution {
         registry.registerHandler(
             CommonCommands.UNDO.id,
             new DiagramCommandHandler(this.application.shell, widget =>
-                widget.modelSource.actionDispatcher.dispatch(new UndoAction())
+                widget.actionDispatcher.dispatch(new UndoAction())
             )
         )
         registry.registerHandler(
             CommonCommands.REDO.id,
             new DiagramCommandHandler(this.application.shell, widget =>
-                widget.modelSource.actionDispatcher.dispatch(new RedoAction())
+                widget.actionDispatcher.dispatch(new RedoAction())
             )
         )
     }
