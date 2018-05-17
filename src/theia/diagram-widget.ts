@@ -5,14 +5,12 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction } from 'sprotty/lib'
+import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction, IActionDispatcher } from 'sprotty/lib';
 import { Widget } from "@phosphor/widgets"
 import { Message } from "@phosphor/messaging/lib"
 import URI from "@theia/core/lib/common/uri"
 
 export class DiagramWidget extends Widget {
-
-    private svgId: string
 
     private statusIconDiv: HTMLDivElement;
     private statusMessageDiv: HTMLDivElement;
@@ -21,14 +19,14 @@ export class DiagramWidget extends Widget {
                 public readonly svgContainerId: string,
                 public readonly uri: URI,
                 public readonly diagramType: string,
-                public readonly modelSource: ModelSource) {
+                public readonly modelSource: ModelSource,
+                public readonly actionDispatcher: IActionDispatcher) {
         super()
     }
 
     protected onAfterAttach(msg: Message): void {
         super.onAfterAttach(msg)
         const svgContainer = document.createElement("div")
-        this.svgId = this.svgContainerId + "_" + this.diagramType
         svgContainer.id = this.svgContainerId
         this.node.appendChild(svgContainer)
 
@@ -67,13 +65,13 @@ export class DiagramWidget extends Widget {
     protected onResize(msg: Widget.ResizeMessage): void {
         super.onResize(msg)
         const newBounds = this.getBoundsInPage(this.node as Element)
-        this.modelSource.actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
-        this.modelSource.actionDispatcher.dispatch(new CenterAction([], false))
+        this.actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
+        this.actionDispatcher.dispatch(new CenterAction([], false))
     }
 
     protected onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg)
-        const svgElement = document.getElementById(this.svgId)
+        const svgElement = this.node.querySelector(`#${this.svgContainerId} svg`) as HTMLElement
         if (svgElement !== null)
             svgElement.focus()
     }

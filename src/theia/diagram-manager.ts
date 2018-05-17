@@ -5,16 +5,16 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { TheiaDiagramServer } from '../sprotty/theia-diagram-server'
+import { TheiaDiagramServer } from '../sprotty/theia-diagram-server';
 import { TheiaSprottyConnector } from '../sprotty/theia-sprotty-connector'
 import { DiagramConfigurationRegistry } from './diagram-configuration'
 import { injectable, inject } from "inversify"
-import { OpenerOptions, OpenHandler, FrontendApplication, FrontendApplicationContribution, ApplicationShell } from "@theia/core/lib/browser"
+import { OpenerOptions, OpenHandler, FrontendApplicationContribution, ApplicationShell } from "@theia/core/lib/browser"
 import URI from "@theia/core/lib/common/uri"
 import { DiagramWidget } from "./diagram-widget"
 import { DiagramWidgetRegistry } from "./diagram-widget-registry"
 import { Emitter, Event, SelectionService } from '@theia/core/lib/common'
-import { TYPES } from 'sprotty/lib'
+import { TYPES, ModelSource, IActionDispatcher, DiagramServer } from 'sprotty/lib'
 import { EditorManager } from '@theia/editor/lib/browser';
 
 export const DiagramManagerProvider = Symbol('DiagramManagerProvider')
@@ -29,6 +29,7 @@ export interface DiagramManager extends OpenHandler, FrontendApplicationContribu
 @injectable()
 export abstract class DiagramManagerImpl implements DiagramManager {
 
+    @inject(ApplicationShell) protected readonly shell: ApplicationShell
     @inject(DiagramWidgetRegistry) protected readonly widgetRegistry: DiagramWidgetRegistry
     @inject(SelectionService) protected readonly selectionService: SelectionService
     @inject(DiagramConfigurationRegistry) protected diagramConfigurationRegistry: DiagramConfigurationRegistry
@@ -43,18 +44,8 @@ export abstract class DiagramManagerImpl implements DiagramManager {
         return this.diagramType + "-diagram-opener"
     }
 
-    private _resolveApp: (app: FrontendApplication) => void
-
-    protected readonly resolveApp = new Promise<FrontendApplication>(resolve =>
-        this._resolveApp = resolve
-    )
-
     get onDiagramOpened(): Event<URI> {
         return this.onDiagramOpenedEmitter.event
-    }
-
-    onStart(app: FrontendApplication): void {
-        this._resolveApp(app)
     }
 
     canHandle(uri: URI, options?: OpenerOptions | undefined): number {
@@ -63,9 +54,9 @@ export abstract class DiagramManagerImpl implements DiagramManager {
 
     open(uri: URI, input?: OpenerOptions): Promise<DiagramWidget> {
         const promiseDiagramWidget = this.getOrCreateDiagramWidget(uri)
-        promiseDiagramWidget.then((diagramWidget) => {
-            this.resolveApp.then(app => {
-                app.shell.activateWidget(diagramWidget.id)
+        promiseDiagramWidget.then(diagramWidget => {
+            window.requestAnimationFrame(() => {
+                this.shell.activateWidget(diagramWidget.id)
                 this.onDiagramOpenedEmitter.fire(uri)
             })
         })
@@ -73,47 +64,51 @@ export abstract class DiagramManagerImpl implements DiagramManager {
     }
 
     protected getOrCreateDiagramWidget(uri: URI): Promise<DiagramWidget> {
-        return this.resolveApp.then(app => {
-            const widget = this.widgetRegistry.getWidget(uri, this.diagramType)
-            if (widget !== undefined)
-                return widget as Promise<DiagramWidget>
-            const widgetId = this.widgetRegistry.nextId()
-            const svgContainerId = widgetId + '_sprotty'
-            const modelSource = this.createModelSource(widgetId, svgContainerId)
-            const newWidget = new DiagramWidget(widgetId, svgContainerId, uri, this.diagramType, modelSource)
-            newWidget.title.closable = true
-            newWidget.title.label = uri.path.base
-            newWidget.title.icon = this.iconClass
-            this.widgetRegistry.addWidget(uri, this.diagramType, newWidget)
-            newWidget.disposed.connect(() => {
-                this.widgetRegistry.removeWidget(uri, this.diagramType)
-                if (this.diagramConnector)
-                    this.diagramConnector.disconnect(modelSource)
-            })
-            const currentEditor = this.editorManager.currentEditor
-            const options: ApplicationShell.WidgetOptions = {
-                area: 'main'
-            }
-            if (!!currentEditor && currentEditor.editor.uri.toString === uri.toString) {
-                options.ref = currentEditor
-                options.mode = 'split-right'
-            }
-            app.shell.addWidget(newWidget, options)
-            return newWidget
-        })
+        const widget = this.widgetRegistry.getWidget(uri, this.diagramType)
+        if (widget !== undefined)
+            return widget
+        const newWidget = this.createDiagramWidget(uri)
+        this.addToShell(newWidget)
+        return Promise.resolve(newWidget)
     }
 
-    protected createModelSource(widgetId: string, svgContainerId: string): TheiaDiagramServer {
+    protected createDiagramWidget(uri: URI): DiagramWidget {
+        const widgetId = this.widgetRegistry.nextId()
+        const svgContainerId = widgetId + '_sprotty'
         const diagramConfiguration = this.diagramConfigurationRegistry.get(this.diagramType)
-        const newServer = diagramConfiguration.createContainer(svgContainerId).get<TheiaDiagramServer>(TYPES.ModelSource)
-        newServer.clientId = widgetId
-        if (this.diagramConnector)
-            this.diagramConnector.connect(newServer)
-        return newServer
+        const diContainer = diagramConfiguration.createContainer(svgContainerId)
+        const modelSource = diContainer.get<ModelSource>(TYPES.ModelSource)
+        if (modelSource instanceof DiagramServer)
+            modelSource.clientId = widgetId
+        if (modelSource instanceof TheiaDiagramServer && this.diagramConnector)
+            this.diagramConnector.connect(modelSource)
+        const actionDispatcher = diContainer.get<IActionDispatcher>(TYPES.IActionDispatcher)
+        const newWidget = new DiagramWidget(widgetId, svgContainerId, uri, this.diagramType, modelSource, actionDispatcher)
+        newWidget.title.closable = true
+        newWidget.title.label = uri.path.base
+        newWidget.title.icon = this.iconClass
+        this.widgetRegistry.addWidget(uri, this.diagramType, newWidget)
+        newWidget.disposed.connect(() => {
+            this.widgetRegistry.removeWidget(uri, this.diagramType)
+            if (modelSource instanceof TheiaDiagramServer && this.diagramConnector)
+                this.diagramConnector.disconnect(modelSource)
+        })
+        return newWidget
+    }
+
+    protected addToShell(widget: DiagramWidget): void {
+        const currentEditor = this.editorManager.currentEditor
+        const options: ApplicationShell.WidgetOptions = {
+            area: 'main'
+        }
+        if (!!currentEditor && currentEditor.editor.uri.toString === widget.uri.toString) {
+            options.ref = currentEditor
+            options.mode = 'split-right'
+        }
+        this.shell.addWidget(widget, options)
     }
 
     get diagramConnector(): TheiaSprottyConnector | undefined {
         return undefined
     }
 }
-
