@@ -9,19 +9,40 @@ import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSo
 import { Widget } from "@phosphor/widgets"
 import { Message } from "@phosphor/messaging/lib"
 import URI from "@theia/core/lib/common/uri"
+import { BaseWidget } from '@theia/core/lib/browser'
 
-export class DiagramWidget extends Widget {
+export interface DiagramWidgetOptions {
+    id: string
+    svgContainerId: string
+    uri: URI
+    diagramType: string
+    modelSource: ModelSource
+    actionDispatcher: IActionDispatcher
+}
 
-    private statusIconDiv: HTMLDivElement;
-    private statusMessageDiv: HTMLDivElement;
+export type DiagramWidgetFactory = (options: DiagramWidgetOptions) => DiagramWidget
+export const DiagramWidgetFactory = Symbol('DiagramWidgetFactory')
 
-    constructor(public readonly id: string,
-                public readonly svgContainerId: string,
-                public readonly uri: URI,
-                public readonly diagramType: string,
-                public readonly modelSource: ModelSource,
-                public readonly actionDispatcher: IActionDispatcher) {
+export class DiagramWidget extends BaseWidget {
+
+    private statusIconDiv: HTMLDivElement
+    private statusMessageDiv: HTMLDivElement
+
+    public readonly id: string
+    public readonly svgContainerId: string
+    public readonly uri: URI
+    public readonly diagramType: string
+    public readonly modelSource: ModelSource
+    public readonly actionDispatcher: IActionDispatcher
+
+    constructor(options: DiagramWidgetOptions) {
         super()
+        this.id = options.id
+        this.svgContainerId = options.svgContainerId
+        this.uri = options.uri
+        this.diagramType = options.diagramType
+        this.modelSource = options.modelSource
+        this.actionDispatcher = options.actionDispatcher
     }
 
     protected onAfterAttach(msg: Message): void {
@@ -48,10 +69,6 @@ export class DiagramWidget extends Widget {
         }))
     }
 
-    protected onAfterShow(msg: Message): void {
-        super.onAfterShow(msg)
-    }
-
     protected getBoundsInPage(element: Element) {
         const bounds = element.getBoundingClientRect()
         return {
@@ -74,23 +91,6 @@ export class DiagramWidget extends Widget {
         const svgElement = this.node.querySelector(`#${this.svgContainerId} svg`) as HTMLElement
         if (svgElement !== null)
             svgElement.focus()
-    }
-
-    protected onCloseRequest(msg: Message): void {
-        super.onCloseRequest(msg)
-        this.dispose()
-    }
-
-    protected onAfterHide(msg: Message): void {
-        super.onAfterHide(msg)
-    }
-
-    protected onAfterDetach(msg: Message): void {
-        super.onAfterDetach(msg)
-    }
-
-    protected onUpdateRequest(msg: Message): void {
-        super.onUpdateRequest(msg)
     }
 
     setStatus(status: ServerStatusAction): void {
