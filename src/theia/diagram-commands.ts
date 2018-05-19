@@ -18,7 +18,7 @@ import { DiagramManagerImpl } from './diagram-manager'
 import { injectable, inject } from 'inversify'
 import { MAIN_MENU_BAR, MenuContribution, MenuModelRegistry, CommandContribution,
          CommandHandler, CommandRegistry, MenuPath } from '@theia/core/lib/common'
-import { ApplicationShell, FrontendApplication, OpenerService, CommonCommands } from '@theia/core/lib/browser'
+import { ApplicationShell, OpenerService, CommonCommands } from '@theia/core/lib/browser'
 import { EDITOR_CONTEXT_MENU, EditorManager } from "@theia/editor/lib/browser"
 
 export namespace DiagramCommands {
@@ -93,7 +93,7 @@ export class OpenInDiagramHandler implements CommandHandler {
 
 @injectable()
 export class DiagramCommandContribution implements CommandContribution {
-    constructor(@inject(FrontendApplication) protected readonly application: FrontendApplication,
+    constructor(@inject(ApplicationShell) protected readonly shell: ApplicationShell,
                 @inject(EditorManager) protected readonly editorManager: EditorManager,
                 @inject(OpenerService) protected readonly openerService: OpenerService) {
     }
@@ -122,25 +122,25 @@ export class DiagramCommandContribution implements CommandContribution {
 
         registry.registerHandler(
             DiagramCommands.CENTER,
-            new DiagramCommandHandler(this.application.shell, widget =>
+            new DiagramCommandHandler(this.shell, widget =>
                 widget.actionDispatcher.dispatch(new CenterAction([]))
             )
         )
         registry.registerHandler(
             DiagramCommands.FIT,
-            new DiagramCommandHandler(this.application.shell, widget =>
+            new DiagramCommandHandler(this.shell, widget =>
                 widget.actionDispatcher.dispatch(new FitToScreenAction([]))
             )
         )
         registry.registerHandler(
             DiagramCommands.EXPORT,
-            new DiagramCommandHandler(this.application.shell, widget =>
+            new DiagramCommandHandler(this.shell, widget =>
                 widget.actionDispatcher.dispatch(new RequestExportSvgAction())
             )
         )
         registry.registerHandler(
             DiagramCommands.SELECT_ALL,
-            new DiagramCommandHandler(this.application.shell, widget => {
+            new DiagramCommandHandler(this.shell, widget => {
                 const action = new SelectAllAction(true)
                 widget.actionDispatcher.dispatch(action)
             })
@@ -151,13 +151,13 @@ export class DiagramCommandContribution implements CommandContribution {
         )
         registry.registerHandler(
             CommonCommands.UNDO.id,
-            new DiagramCommandHandler(this.application.shell, widget =>
+            new DiagramCommandHandler(this.shell, widget =>
                 widget.actionDispatcher.dispatch(new UndoAction())
             )
         )
         registry.registerHandler(
             CommonCommands.REDO.id,
-            new DiagramCommandHandler(this.application.shell, widget =>
+            new DiagramCommandHandler(this.shell, widget =>
                 widget.actionDispatcher.dispatch(new RedoAction())
             )
         )

@@ -11,7 +11,7 @@ import { DiagramConfigurationRegistry } from './diagram-configuration'
 import { injectable, inject } from "inversify"
 import { OpenerOptions, OpenHandler, FrontendApplicationContribution, ApplicationShell } from "@theia/core/lib/browser"
 import URI from "@theia/core/lib/common/uri"
-import { DiagramWidget } from "./diagram-widget"
+import { DiagramWidget, DiagramWidgetFactory } from "./diagram-widget"
 import { DiagramWidgetRegistry } from "./diagram-widget-registry"
 import { Emitter, Event, SelectionService } from '@theia/core/lib/common'
 import { TYPES, ModelSource, IActionDispatcher, DiagramServer } from 'sprotty/lib'
@@ -82,8 +82,10 @@ export abstract class DiagramManagerImpl implements DiagramManager {
             modelSource.clientId = widgetId
         if (modelSource instanceof TheiaDiagramServer && this.diagramConnector)
             this.diagramConnector.connect(modelSource)
-        const actionDispatcher = diContainer.get<IActionDispatcher>(TYPES.IActionDispatcher)
-        const newWidget = new DiagramWidget(widgetId, svgContainerId, uri, this.diagramType, modelSource, actionDispatcher)
+        const newWidget = this.diagramWidgetFactory({
+            id: widgetId, svgContainerId, uri, diagramType: this.diagramType, modelSource,
+            actionDispatcher: diContainer.get<IActionDispatcher>(TYPES.IActionDispatcher)
+        })
         newWidget.title.closable = true
         newWidget.title.label = uri.path.base
         newWidget.title.icon = this.iconClass
@@ -106,6 +108,10 @@ export abstract class DiagramManagerImpl implements DiagramManager {
             options.mode = 'split-right'
         }
         this.shell.addWidget(widget, options)
+    }
+
+    protected get diagramWidgetFactory(): DiagramWidgetFactory {
+        return options => new DiagramWidget(options)
     }
 
     get diagramConnector(): TheiaSprottyConnector | undefined {
