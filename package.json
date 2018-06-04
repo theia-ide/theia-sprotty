@@ -16,7 +16,7 @@
     "@theia/filesystem": "next",
     "@theia/languages": "next",
     "@theia/monaco": "next",
-    "sprotty": "0.3.0"
+    "sprotty": "^0.4.0"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
