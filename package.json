@@ -21,7 +21,7 @@
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
-    "build": "tsc && yarn run lint",
+    "build": "tsc && yarn lint",
     "lint": "tslint -c ./tslint.json --project ./tsconfig.json",
     "watch": "tsc -w",
     "test": "mocha --opts ./mocha.opts \"./src/**/*.spec.?(ts|tsx)\""
@@ -34,7 +34,7 @@
     "rimraf": "^2.6.1",
     "ts-node": "^3.2.0",
     "tslint": "^5.5.0",
-    "typescript": "^2.5.2"
+    "typescript": "2.9.1"
   },
   "files": [
     "lib",
