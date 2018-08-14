@@ -9,6 +9,7 @@
     "strictNullChecks": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es5",
