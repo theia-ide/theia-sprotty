@@ -1,6 +1,6 @@
 {
   "name": "theia-sprotty",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Glue code for sprotty diagrams in a Theia IDE",
   "author": "Project Theia",
   "license": "Apache-2.0",
@@ -16,7 +16,7 @@
     "@theia/filesystem": "next",
     "@theia/languages": "next",
     "@theia/monaco": "next",
-    "sprotty": "^0.4.0"
+    "sprotty": "^0.4.2"
   },
   "scripts": {
     "prepare": "yarn run clean && yarn run build",
