@@ -8,10 +8,21 @@
 import {
     ILogger, SelectCommand, ActionHandlerRegistry, IActionDispatcher, SModelStorage, TYPES,
     ViewerOptions, DiagramServer, ActionMessage, ExportSvgAction, RequestModelAction, Action,
-    ICommand, ServerStatusAction
+    ICommand, ServerStatusAction, RequestPopupModelAction, SetPopupModelAction, SModelRootSchema, SModelElementSchema
 } from 'sprotty/lib'
 import { TheiaSprottyConnector } from './theia-sprotty-connector'
-import { injectable, inject } from "inversify"
+import { injectable, inject, optional } from "inversify"
+import { Workspace } from '@theia/languages/lib/browser';
+
+
+export const TheiaDiagramServerProvider = Symbol('TheiaDiagramServerProvider');
+
+export type TheiaDiagramServerProvider = () => Promise<TheiaDiagramServer>;
+
+export const IRootPopupModelProvider = Symbol('IRootPopupModelProvider');
+export interface IRootPopupModelProvider {
+    getPopupModel(action: RequestPopupModelAction, rootElement: SModelRootSchema): Promise<SModelElementSchema | undefined>;
+}
 
 /**
  * A sprotty DiagramServer that can be connected to a Theia language
@@ -24,9 +35,12 @@ import { injectable, inject } from "inversify"
 @injectable()
 export class TheiaDiagramServer extends DiagramServer {
 
-    protected connector: Promise<TheiaSprottyConnector>
+    private connector: Promise<TheiaSprottyConnector>
     private resolveConnector: (server: TheiaSprottyConnector) => void
-    private sourceUri: string
+    protected sourceUri: string
+    protected workspace: Workspace | undefined;
+
+    @inject(IRootPopupModelProvider)@optional() protected rootPopupModelProvider: IRootPopupModelProvider;
 
     constructor(@inject(TYPES.IActionDispatcher) public actionDispatcher: IActionDispatcher,
                 @inject(TYPES.ActionHandlerRegistry) actionHandlerRegistry: ActionHandlerRegistry,
@@ -39,6 +53,7 @@ export class TheiaDiagramServer extends DiagramServer {
 
     connect(connector: TheiaSprottyConnector): void {
         this.resolveConnector(connector)
+        this.workspace = connector.workspace
     }
 
     disconnect(): void {
@@ -48,6 +63,18 @@ export class TheiaDiagramServer extends DiagramServer {
     private waitForConnector(): void {
         this.connector = new Promise<TheiaSprottyConnector>(resolve =>
             this.resolveConnector = resolve)
+    }
+
+    getConnector() {
+        return this.connector
+    }
+
+    getSourceUri() {
+        return this.sourceUri
+    }
+
+    getWorkspace() {
+        return this.workspace
     }
 
     initialize(registry: ActionHandlerRegistry): void {
@@ -61,9 +88,29 @@ export class TheiaDiagramServer extends DiagramServer {
         return super.handle(action)
     }
 
+    handleLocally(action: Action): boolean {
+        if (action instanceof RequestPopupModelAction) {
+            return this.handleRequestPopupModel(action);
+        } else {
+            return super.handleLocally(action);
+        }
+    }
+
     handleExportSvgAction(action: ExportSvgAction): boolean {
         this.connector.then(c => c.save(this.sourceUri, action))
         return true
+    }
+
+    handleRequestPopupModel(action: RequestPopupModelAction): boolean {
+        if (action.elementId === this.currentRoot.id) {
+            this.rootPopupModelProvider.getPopupModel(action, this.currentRoot).then(model => {
+                if (model)
+                    this.actionDispatcher.dispatch(new SetPopupModelAction(model));
+            });
+            return false;
+        } else {
+            return true;
+        }
     }
 
     protected handleServerStateAction(status: ServerStatusAction): boolean {
@@ -82,3 +129,5 @@ export class TheiaDiagramServer extends DiagramServer {
         super.messageReceived(message)
     }
 }
+
+
