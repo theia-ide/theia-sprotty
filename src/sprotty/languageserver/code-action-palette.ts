@@ -28,6 +28,7 @@ export class CodeActionProvider {
             },
             range,
             context: {
+                diagnostics: [],
                 only: [codeActionKind]
             }
         });
