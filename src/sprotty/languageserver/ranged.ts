@@ -6,7 +6,7 @@
  */
 
 import { SModelElement } from "sprotty/lib";
-import { Range } from "vscode-languageserver-protocol";
+import { Range } from "@theia/languages/lib/browser";
 
 export interface Ranged {
     range: string

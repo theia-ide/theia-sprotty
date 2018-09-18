@@ -10,7 +10,7 @@ import { Action, EMPTY_ROOT, HtmlRootSchema, PopupHoverMouseListener, RequestPop
     SButton, SButtonSchema, SetPopupModelAction, SModelElement, SModelElementSchema, SModelRootSchema } from "sprotty/lib";
 import { TheiaDiagramServerProvider, IRootPopupModelProvider } from '../theia-diagram-server';
 import { toLsRange } from './ranged';
-import { CodeAction, CodeActionParams, CodeActionRequest, Range } from 'vscode-languageserver-protocol';
+import { CodeAction, CodeActionParams, CodeActionRequest, Range } from '@theia/languages/lib/browser';
 import { WorkspaceEditAction } from "./workspace-edit-command";
 
 @injectable()

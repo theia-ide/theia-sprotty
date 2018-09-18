@@ -5,9 +5,8 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { WorkspaceEdit } from "monaco-languageclient";
 import { Action, Command, CommandExecutionContext, CommandResult } from "sprotty/lib";
-import { Workspace } from "@theia/languages/lib/browser";
+import { Workspace, WorkspaceEdit } from "@theia/languages/lib/browser";
 
 export abstract class AbstractWorkspaceEditCommand extends Command {
 
