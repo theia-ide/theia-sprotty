@@ -16,7 +16,6 @@
     "@theia/filesystem": "next",
     "@theia/languages": "next",
     "@theia/monaco": "next",
-    "vscode-languageserver-protocol": "3.12.0",
     "sprotty": "^0.4.2"
   },
   "scripts": {
