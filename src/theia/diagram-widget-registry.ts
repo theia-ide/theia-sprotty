@@ -55,7 +55,7 @@ export class DiagramWidgetRegistry {
     }
 
     protected getKey(uri: URI, diagramType: string): string {
-        return uri.toString() + '#' + diagramType
+        return uri.toString(true) + '#' + diagramType
     }
 
     public nextId(): string {
