@@ -5,8 +5,10 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-export * from './workspace-edit-command';
+export * from './code-action-palette';
+export * from './completion-label-edit';
+export * from './delete';
 export * from './ranged';
+export * from './rename-label-edit';
 export * from './traceable';
 export * from './workspace-edit-command';
-export * from './code-action-palette';

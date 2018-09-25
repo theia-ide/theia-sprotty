@@ -12,6 +12,7 @@ import { EditorManager } from '@theia/editor/lib/browser'
 import { TheiaFileSaver } from './theia-file-saver'
 import { DiagramWidgetRegistry } from '../theia/diagram-widget-registry'
 import URI from "@theia/core/lib/common/uri"
+import { QuickPickService } from '@theia/core/lib/browser';
 
 export interface OpenInTextEditorMessage {
     location: Location
@@ -40,7 +41,8 @@ export class TheiaSprottyConnector {
                 readonly fileSaver: TheiaFileSaver,
                 readonly editorManager: EditorManager,
                 readonly diagramWidgetRegistry: DiagramWidgetRegistry,
-                readonly workspace?: Workspace) {
+                readonly workspace?: Workspace,
+                readonly quickPickService?: QuickPickService) {
         this.languageClientContribution.languageClient.then(
             lc => {
                 lc.onNotification(acceptMessageType, this.receivedThroughLsp.bind(this))
