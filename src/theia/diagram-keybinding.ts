@@ -20,7 +20,7 @@ export class DiagramKeybindingContext implements KeybindingContext {
     id = 'diagram.keybinding.context'
 
     isEnabled(arg?: Keybinding) {
-        return this.application.shell.currentWidget instanceof DiagramWidget
+        return this.application.shell.activeWidget instanceof DiagramWidget
     }
 }
 
