@@ -21,7 +21,7 @@ export class RenameLabelEditor {
         const range = toLsRange(element.range);
         const diagramServer = await this.diagramServerProvider();
         const connector = await diagramServer.getConnector();
-        if (connector.workspace) {
+        if (connector.workspaceEditApplicator) {
             const initialValue = element.text;
             const dialog = new SingleTextInputDialog({
                 title: 'Rename Element',
@@ -46,7 +46,7 @@ export class RenameLabelEditor {
                     newName
                 })
                 if (workspaceEdit) {
-                    await connector.workspace.applyEdit(workspaceEdit)
+                    await connector.workspaceEditApplicator.applyEdit(workspaceEdit)
                 }
             }
         }

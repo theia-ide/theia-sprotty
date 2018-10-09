@@ -5,14 +5,12 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import {
-    ILogger, SelectCommand, ActionHandlerRegistry, IActionDispatcher, SModelStorage, TYPES,
-    ViewerOptions, DiagramServer, ActionMessage, ExportSvgAction, RequestModelAction, Action,
-    ICommand, ServerStatusAction, RequestPopupModelAction, SetPopupModelAction, SModelRootSchema, SModelElementSchema
-} from 'sprotty/lib'
-import { TheiaSprottyConnector } from './theia-sprotty-connector'
-import { injectable, inject, optional } from "inversify"
-import { Workspace } from '@theia/languages/lib/browser';
+import { inject, injectable, optional } from "inversify";
+import { Action, ActionHandlerRegistry, ActionMessage, DiagramServer, ExportSvgAction, IActionDispatcher,
+    ICommand, ILogger, RequestModelAction, RequestPopupModelAction, SelectCommand, ServerStatusAction,
+    SetPopupModelAction, SModelElementSchema, SModelRootSchema, SModelStorage, TYPES, ViewerOptions } from 'sprotty/lib';
+import { TheiaSprottyConnector } from './theia-sprotty-connector';
+import { IWorkspaceEditApplicator } from "../theia/languageserver/workspace-edit-applicator";
 
 
 export const TheiaDiagramServerProvider = Symbol('TheiaDiagramServerProvider');
@@ -38,7 +36,7 @@ export class TheiaDiagramServer extends DiagramServer {
     private connector: Promise<TheiaSprottyConnector>
     private resolveConnector: (server: TheiaSprottyConnector) => void
     protected sourceUri: string
-    protected workspace: Workspace | undefined;
+    protected workspaceEditApplicator: IWorkspaceEditApplicator | undefined;
 
     @inject(IRootPopupModelProvider)@optional() protected rootPopupModelProvider: IRootPopupModelProvider;
 
@@ -53,7 +51,7 @@ export class TheiaDiagramServer extends DiagramServer {
 
     connect(connector: TheiaSprottyConnector): void {
         this.resolveConnector(connector)
-        this.workspace = connector.workspace
+        this.workspaceEditApplicator = connector.workspaceEditApplicator
     }
 
     disconnect(): void {
@@ -73,8 +71,8 @@ export class TheiaDiagramServer extends DiagramServer {
         return this.sourceUri
     }
 
-    getWorkspace() {
-        return this.workspace
+    getWorkspaceEditApplicator() {
+        return this.workspaceEditApplicator
     }
 
     initialize(registry: ActionHandlerRegistry): void {

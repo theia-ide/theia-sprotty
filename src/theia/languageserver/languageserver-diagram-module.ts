@@ -9,6 +9,7 @@ import { KeybindingContribution } from '@theia/core/lib/browser';
 import { CommandContribution } from '@theia/core/lib/common';
 import { ContainerModule } from 'inversify';
 import { LSDiagramCommandContribution, LSDiagramKeybindingContribution } from './languageserver-diagram-contributions';
+import { IWorkspaceEditApplicator, WorkspaceEditApplicator } from './workspace-edit-applicator';
 
 /**
  * Standard DI config for languageserver aware diagrams.
@@ -16,4 +17,6 @@ import { LSDiagramCommandContribution, LSDiagramKeybindingContribution } from '.
 export default new ContainerModule(bind => {
     bind(CommandContribution).to(LSDiagramCommandContribution).inSingletonScope()
     bind(KeybindingContribution).to(LSDiagramKeybindingContribution).inSingletonScope()
+    bind(WorkspaceEditApplicator).toSelf().inSingletonScope()
+    bind(IWorkspaceEditApplicator).toService(WorkspaceEditApplicator)
 })

@@ -6,18 +6,19 @@
  */
 
 import { Action, Command, CommandExecutionContext, CommandResult } from "sprotty/lib";
-import { Workspace, WorkspaceEdit } from "@theia/languages/lib/browser";
+import { WorkspaceEdit } from "@theia/languages/lib/browser";
+import { IWorkspaceEditApplicator } from "../../theia/languageserver/workspace-edit-applicator";
 
 export abstract class AbstractWorkspaceEditCommand extends Command {
 
     abstract createWorkspaceEdit(context: CommandExecutionContext): WorkspaceEdit
-    abstract get workspace(): Workspace
+    abstract get workspaceEditApplicator(): IWorkspaceEditApplicator
 
     protected workspaceEdit: WorkspaceEdit | undefined;
 
     execute(context: CommandExecutionContext): CommandResult {
         this.workspaceEdit = this.createWorkspaceEdit(context)
-        this.workspace.applyEdit(this.workspaceEdit);
+        this.workspaceEditApplicator.applyEdit(this.workspaceEdit);
         return context.root;
     }
 
@@ -39,8 +40,8 @@ export class WorkspaceEditCommand extends AbstractWorkspaceEditCommand {
         super();
     }
 
-    get workspace() {
-        return this.action.workspace;
+    get workspaceEditApplicator() {
+        return this.action.workspaceEditApplicator;
     }
 
     createWorkspaceEdit(context: CommandExecutionContext) {
@@ -53,5 +54,5 @@ export class WorkspaceEditCommand extends AbstractWorkspaceEditCommand {
  */
 export class WorkspaceEditAction implements Action {
     readonly kind = WorkspaceEditCommand.KIND;
-    constructor(readonly workspaceEdit: WorkspaceEdit, readonly workspace: Workspace) {}
+    constructor(readonly workspaceEdit: WorkspaceEdit, readonly workspaceEditApplicator: IWorkspaceEditApplicator) {}
 }
