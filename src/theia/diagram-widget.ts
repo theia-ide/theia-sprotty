@@ -5,50 +5,81 @@
  * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  */
 
-import { RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction, IActionDispatcher } from 'sprotty/lib';
+import { TYPES, DiagramServer, RequestModelAction, CenterAction, InitializeCanvasBoundsAction, ModelSource, ServerStatusAction, IActionDispatcher } from 'sprotty/lib';
 import { Widget } from "@phosphor/widgets"
 import { Message } from "@phosphor/messaging/lib"
 import URI from "@theia/core/lib/common/uri"
 import { BaseWidget } from '@theia/core/lib/browser/widgets/widget'
+import { StatefulWidget } from '@theia/core/lib/browser';
+import { DiagramConfigurationRegistry } from './diagram-configuration';
+import { TheiaDiagramServer } from '../sprotty/theia-diagram-server';
+import { DiagramManagerImpl } from './diagram-manager';
+import { DiagramWidgetRegistry } from './diagram-widget-registry';
 
 export interface DiagramWidgetOptions {
     id: string
     svgContainerId: string
-    uri: URI
+    uri: string
     diagramType: string
-    modelSource: ModelSource
-    actionDispatcher: IActionDispatcher
 }
 
-export type DiagramWidgetFactory = (options: DiagramWidgetOptions) => DiagramWidget
-export const DiagramWidgetFactory = Symbol('DiagramWidgetFactory')
-
-export class DiagramWidget extends BaseWidget {
+export class DiagramWidget extends BaseWidget implements StatefulWidget {
 
     private statusIconDiv: HTMLDivElement
     private statusMessageDiv: HTMLDivElement
 
-    public readonly id: string
-    public readonly svgContainerId: string
-    public readonly uri: URI
-    public readonly diagramType: string
-    public readonly modelSource: ModelSource
-    public readonly actionDispatcher: IActionDispatcher
+    protected _id: string;
+    protected _svgContainerId: string
+    protected _uri: URI
+    protected _diagramType: string
+    protected _modelSource: ModelSource
+    protected _actionDispatcher: IActionDispatcher
 
-    constructor(options: DiagramWidgetOptions) {
+    constructor(
+        protected options: DiagramWidgetOptions,
+        protected diagramConfigurationRegistry: DiagramConfigurationRegistry,
+        protected diagramManager: DiagramManagerImpl,
+        protected widgetRegistry: DiagramWidgetRegistry) {
         super()
-        this.id = options.id
-        this.svgContainerId = options.svgContainerId
-        this.uri = options.uri
-        this.diagramType = options.diagramType
-        this.modelSource = options.modelSource
-        this.actionDispatcher = options.actionDispatcher
+
+        this.initialize();
+    }
+
+    get id(): string {
+        return this._id;
+    }
+
+    get svgContainerId(): string {
+        return this._svgContainerId;
+    }
+
+    get uri(): URI {
+        return this._uri;
+    }
+
+    get diagramType(): string {
+        return this._diagramType;
+    }
+
+    get modelSource(): ModelSource {
+        return this._modelSource;
+    }
+
+    get actionDispatcher(): IActionDispatcher {
+        return this._actionDispatcher;
+    }
+
+    protected initialize() {
+        this._id = this.options.id
+        this._svgContainerId = this.options.svgContainerId
+        this._uri = new URI(this.options.uri)
+        this._diagramType = this.options.diagramType
     }
 
     protected onAfterAttach(msg: Message): void {
         super.onAfterAttach(msg)
         const svgContainer = document.createElement("div")
-        svgContainer.id = this.svgContainerId
+        svgContainer.id = this._svgContainerId
         this.node.appendChild(svgContainer)
 
         const statusDiv = document.createElement("div")
@@ -63,9 +94,29 @@ export class DiagramWidget extends BaseWidget {
         this.statusMessageDiv.setAttribute('class', 'sprotty-status-message')
         statusDiv.appendChild(this.statusMessageDiv)
 
-        this.modelSource.handle(new RequestModelAction({
-            sourceUri: this.uri.toString(true),
-            diagramType: this.diagramType
+        const diagramConfiguration = this.diagramConfigurationRegistry.get(this.options.diagramType);
+        const diContainer = diagramConfiguration.createContainer(this.options.svgContainerId);
+        const modelSource = diContainer.get<ModelSource>(TYPES.ModelSource);
+        if (modelSource instanceof DiagramServer) {
+            modelSource.clientId = this.options.id;
+        }
+
+        this._modelSource = modelSource;
+        this._actionDispatcher = diContainer.get<IActionDispatcher>(TYPES.IActionDispatcher);
+
+        if (modelSource instanceof TheiaDiagramServer && this.diagramManager.diagramConnector) {
+            this.diagramManager.diagramConnector.connect(modelSource);
+        }
+
+        this.disposed.connect(() => {
+            this.widgetRegistry.removeWidget(this.uri, this.diagramType);
+            if (modelSource instanceof TheiaDiagramServer && this.diagramManager.diagramConnector)
+                this.diagramManager.diagramConnector.disconnect(modelSource);
+        });
+
+        this._modelSource.handle(new RequestModelAction({
+            sourceUri: this._uri.toString(true),
+            diagramType: this._diagramType
         }))
     }
 
@@ -82,15 +133,31 @@ export class DiagramWidget extends BaseWidget {
     protected onResize(msg: Widget.ResizeMessage): void {
         super.onResize(msg)
         const newBounds = this.getBoundsInPage(this.node as Element)
-        this.actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
-        this.actionDispatcher.dispatch(new CenterAction([], false))
+        this._actionDispatcher.dispatch(new InitializeCanvasBoundsAction(newBounds))
+        this._actionDispatcher.dispatch(new CenterAction([], false))
     }
 
     protected onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg)
-        const svgElement = this.node.querySelector(`#${this.svgContainerId} svg`) as HTMLElement
+        const svgElement = this.node.querySelector(`#${this._svgContainerId} svg`) as HTMLElement
         if (svgElement !== null)
             svgElement.focus()
+    }
+
+    storeState(): object {
+        const {label, iconClass} = this.title;
+        return {
+            options: this.options,
+            label,
+            iconClass
+        }
+    }
+    restoreState(oldState: object): void {
+        const {options, label, iconClass} = oldState as any;
+        this.options = options;
+        this.title.label = label;
+        this.title.iconClass = iconClass;
+        this.initialize();
     }
 
     setStatus(status: ServerStatusAction): void {

@@ -6,13 +6,13 @@
  */
 
 import { ContainerModule } from 'inversify'
-import { DiagramWidgetRegistry } from "./diagram-widget-registry"
 import { DiagramConfigurationRegistry } from "./diagram-configuration"
 import { TheiaFileSaver } from "../sprotty/theia-file-saver"
 import { DiagramCommandContribution, DiagramMenuContribution } from './diagram-commands'
 import { CommandContribution, MenuContribution } from '@theia/core/lib/common'
 import { DiagramKeybindingContext, DiagramKeybindingContribution } from './diagram-keybinding'
 import { KeybindingContext, KeybindingContribution } from '@theia/core/lib/browser';
+import { DiagramWidgetRegistry } from './diagram-widget-registry';
 
 export default new ContainerModule(bind => {
     bind(DiagramWidgetRegistry).toSelf().inSingletonScope()
